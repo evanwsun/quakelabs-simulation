@@ -1,29 +1,16 @@
 //@ts-check
 
-function Cell (x, y, grid,options={}) {
+function Cell(x, y, grid, options = {}) {
   this.x = x;
   this.y = y;
   this.grid = grid; // you are absolutely FORBIDDEN from altering this. http://jasonjl.me/blog/2014/10/15/javascript/
 
   this.poi = {};
-    /*
-  this.prototype.north = navigate("n");
-  this.east = navigate("e");
-  this.south = navigate("s");
-  this.west = navigate("w");
 
-  this.northeast = navigate("ne");
-  this.southeast = navigate("se");
-  this.southwest = navigate("sw");
-  this.northwest = navigate("nw");
-
-  */
   this.population = options.population;
+}
 
-
-};
-
-const navigate = where => {
+Cell.prototype.navigate = function(where) {
   let options = {
     n: [0, 1],
     e: [1, 0],
@@ -33,7 +20,7 @@ const navigate = where => {
     se: [1, -1],
     sw: [-1, -1],
     nw: [-1, 1],
-    none: [0,0]
+    none: [0, 0]
   };
 
   if (Object.keys(options).includes(where) === false)
@@ -51,9 +38,8 @@ const navigate = where => {
   return this.grid.at(target[0], target[1]);
 };
 
-const changePopulation = (newPopulation) =>{
-    this.population = newPopulation;
-}
-
+Cell.prototype.changePopulation = function(newPopulation) {
+  this.population = newPopulation;
+};
 
 module.exports = Cell;
