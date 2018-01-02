@@ -1,12 +1,16 @@
 // @ts-check
 const Cell = require("./cell.js");
 
+
+// a grid represents the city - a combination of cells
+
 function Grid(xSize, ySize) {
   this.xSize = xSize; // will always
   this.ySize = ySize;
   // console.log(this.xSize,this.ySize);
 
-  this.cells = createCells.call(this);
+ 
+  this._cells = createCells.call(this);  // call() ensures that it has the right "this"
   //console.log(this.cells);
 }
 
@@ -16,7 +20,7 @@ Grid.prototype.tick = (num = 1) => {};
 
 
 
-
+// you could directly access with Grid._cells but this has error protection
 Grid.prototype.at = function(x, y, direction = "none") {
   if (x < 0 || x > this.xSize - 1) {
     throw new Error("x out of bounds");
@@ -26,16 +30,18 @@ Grid.prototype.at = function(x, y, direction = "none") {
     throw new Error("y out of bounds");
   }
   
-  let rtn = this.cells[x][y];
+  let rtn = this._cells[x][y];
 
   if (rtn == null) {
-    this.cells[x][y] = new Cell(x, y, this);
-    rtn = this.cells[x][y];
+    this._cells[x][y] = new Cell(x, y, this);
+    rtn = this._cells[x][y];
   }
 
   return direction === "none" ? rtn : rtn.direction;
 };
 
+
+// makes the cells
 const createCells = function() {
   let cells = new Array(this.xSize);
   //console.log(this.xSize,this.ySize);

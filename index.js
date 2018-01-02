@@ -14,7 +14,7 @@ const Cell = require('./cell.js');
 const grid = new Grid(7,4);
 config.distribution(grid);
 
-console.log(grid.cells[2][3]);
+console.log(grid._cells[2][3]);
 
 
 

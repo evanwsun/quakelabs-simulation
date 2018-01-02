@@ -18,7 +18,7 @@ exp.distribution = function(grid){
        
         for (let y = 0; y < grid.ySize; y++) {
             let populationToAddCurrent = minCellPopulation + (remainder>0 ? 1: 0) ;
-            grid.cells[x][y].changePopulation(populationToAddCurrent);
+            grid.at(x,y).changePopulation(populationToAddCurrent);
             remainder --;
         }
       }

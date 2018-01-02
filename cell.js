@@ -1,15 +1,19 @@
 //@ts-check
 
+// the cells that composes the Grid
 function Cell(x, y, grid, options = {}) {
   this.x = x;
   this.y = y;
   this.grid = grid; // you are absolutely FORBIDDEN from altering this. http://jasonjl.me/blog/2014/10/15/javascript/
 
-  this.poi = {};
+  
+  this.poi = {}; // points of interest - like a hospital or prison!
 
-  this.population = options.population;
+  this.population = options.population; // the people around - don't alter because issues might happen
 }
 
+
+// takes you where you need to go!
 Cell.prototype.navigate = function(where) {
   let options = {
     n: [0, 1],
@@ -23,7 +27,7 @@ Cell.prototype.navigate = function(where) {
     none: [0, 0]
   };
 
-  if (Object.keys(options).includes(where) === false)
+  if (Object.keys(options).includes(where) === false) // TODO: add toLowerCase parsing
     throw new Error("Invalid location passed to navigate funciton");
 
   let target = [this.x + options[where][0], this.y + options[where][1]];
