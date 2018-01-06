@@ -1,6 +1,7 @@
 // @ts-check
 const Promise = require("bluebird");
 const Cell = require("./cell.js");
+const CellWrapper = require('./wrappers/cell.js');
 const config = require("./config.js");
 
 // a grid represents the city - a combination of cells
@@ -16,10 +17,12 @@ function Grid(xSize, ySize) {
 
 // function to move grid simulation forward. Defaults to 1 tick forward but can do a different number if needed
 // probably won't be deterministic so _be_ careful.
-Grid.prototype.tick = (num = 1) => {
-  console.log(this._cells);
-  this._cells.forEach(element => {
-    element.tick();
+Grid.prototype.tick = function(num = 1) {
+  //console.log(this);
+  this._cells.forEach(row => {
+    row.forEach(cell => {
+      cell.tick();
+    });
   });
 };
 
@@ -61,6 +64,22 @@ Grid.prototype.at = function(x, y, direction = "none") {
   return direction === "none" ? rtn : rtn.direction;
 };
 
+// returns cells without grid reference
+Grid.prototype.getWrappedCells = function(){
+  let cells = new Array(this.xSize);
+  //console.log(this.xSize,this.ySize);
+  for (let x = 0; x < this.xSize; x++) {
+    cells[x] = new Array(this.ySize);
+    for (let y = 0; y < this.ySize; y++) {
+      //console.log(x,y,cells[x][y]);
+      //console.log(x,y);
+      cells[x][y] = CellWrapper(this.at(x,y));
+    }
+  }
+  // console.log(cells);
+  return cells;
+}
+
 // makes the cells
 const createCells = function() {
   let cells = new Array(this.xSize);
@@ -76,5 +95,6 @@ const createCells = function() {
   // console.log(cells);
   return cells;
 };
+
 
 module.exports = Grid;

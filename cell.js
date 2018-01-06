@@ -9,7 +9,7 @@ function Cell(x, y, grid, options = {}) {
 
   this.population = {};
   try {
-    this.population.originalValue = options.population.val || 0;
+    this.population.originalValue = options.population.val || 0; 
     this.population.growthPerTick = options.population.tickGrowth || 1; // multiplier
     this.population.dead = options.population.dead || 0;
 
@@ -101,6 +101,7 @@ function doPropertyDamage(magnitude, baseDamage, exponentScaler) {
   let percentDamage = baseDamage * Math.pow(damageRating, exponentScaler);
 
   this.property.destroyed = this.property.value * percentDamage / 100;
+  this.property.originalValue -= this.propert.destroyed;
 }
 
 function doPopulationDamage(magnitude, baseDamage, exponentScaler) {
@@ -108,5 +109,6 @@ function doPopulationDamage(magnitude, baseDamage, exponentScaler) {
   let percentDeath = baseDamage * Math.pow(damageRating, exponentScaler);
 
   this.population.dead = this.population.value * percentDeath / 100;
+  this.population.originalValue -= this.population.dead;
 }
 module.exports = Cell;

@@ -9,15 +9,17 @@ let exp = module.exports;
 
 exp.tick = {};
 
-exp.tick.realFrequency = 15; // seconds
-exp.tick.fakeFrequency = 3; // days
+exp.tick.realFrequency = 10; // seconds
+exp.tick.fakeFrequency = .0125; // days
+exp.tick.limit = 560;
+// this works out to 56 minutes representing 7 days 
 
 exp.dimensions = {
   x: 160,
   y: 100
 };
 exp.population = {};
-exp.population.value = 782343;
+exp.population.value = 7823430; // approximate
 exp.population.growthPerTickMean = 1.00216;
 exp.population.growthPerTickVariance = 0.0009; // this might seem really low but you have to remember that this is going to be put to the power of 365/3
 
@@ -33,7 +35,7 @@ exp.population.distribution = function(grid) {
       let populationToAddCurrent =
         minCellPopulation + (remainder-- > 0 ? 1 : 0);
       let toChange = grid.at(x, y);
-      toChange.changePopulation(populationToAddCurrent);
+      toChange.changePopulation(rnorm(populationToAddCurrent,populationToAddCurrent/11));
       toChange.changePopulationGrowth(
         rnorm(
           exp.population.growthPerTickMean,
