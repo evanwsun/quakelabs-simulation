@@ -1,7 +1,7 @@
 // @ts-check
 const Promise = require("bluebird");
 const Cell = require("./cell.js");
-const CellWrapper = require('./wrappers/cell.js');
+const CellWrapper = require("./wrappers/cell.js");
 const config = require("./config.js");
 
 // a grid represents the city - a combination of cells
@@ -65,7 +65,13 @@ Grid.prototype.at = function(x, y, direction = "none") {
 };
 
 // returns cells without grid reference
-Grid.prototype.getWrappedCells = function(){
+// type is "population" or "property"
+Grid.prototype.getWrappedCells = function(type) {
+  if (type !== "population" && type !== "property" && type != null)
+    throw new Error(
+      "Wrapper cell type must be population, property or nothing"
+    );
+
   let cells = new Array(this.xSize);
   //console.log(this.xSize,this.ySize);
   for (let x = 0; x < this.xSize; x++) {
@@ -73,12 +79,24 @@ Grid.prototype.getWrappedCells = function(){
     for (let y = 0; y < this.ySize; y++) {
       //console.log(x,y,cells[x][y]);
       //console.log(x,y);
-      cells[x][y] = CellWrapper(this.at(x,y));
+      let current = this.at(x, y);
+
+      switch (type) {
+        case "population":
+          cells[x][y] = CellWrapper.population(current);
+          break;
+        case "property":
+          cells[x][y] = CellWrapper.property(current);
+          break;
+        case null:
+          cells[x][y] = CellWrapper.both(current);
+          break;
+      }
     }
   }
   // console.log(cells);
   return cells;
-}
+};
 
 // makes the cells
 const createCells = function() {
@@ -95,6 +113,5 @@ const createCells = function() {
   // console.log(cells);
   return cells;
 };
-
 
 module.exports = Grid;
