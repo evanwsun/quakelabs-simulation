@@ -2,7 +2,8 @@
 const Promise = require("bluebird");
 const Cell = require("./cell.js");
 const CellWrapper = require("./wrappers/cell.js");
-const config = require("./config.js");
+const GridWrapper = require("./wrappers/grid.js")
+const config = require("../config.js");
 
 // a grid represents the city - a combination of cells
 
@@ -10,7 +11,8 @@ function Grid(xSize, ySize) {
   this.xSize = xSize; // will always
   this.ySize = ySize;
   // console.log(this.xSize,this.ySize);
-
+  this.realTime = 0; // seconds
+  this.fakeTime = 0; // seconds
   this._cells = createCells.call(this); // call() ensures that it has the right "this"
   //console.log(this.cells);
 }
@@ -19,6 +21,8 @@ function Grid(xSize, ySize) {
 // probably won't be deterministic so _be_ careful.
 Grid.prototype.tick = function(num = 1) {
   //console.log(this);
+  this.realTime += config.tick.realFrequency;
+  this.fakeTime += config.tick.fakeFrequency;
   this._cells.forEach(row => {
     row.forEach(cell => {
       cell.tick();
@@ -65,13 +69,9 @@ Grid.prototype.at = function(x, y, direction = "none") {
 };
 
 // returns cells without grid reference
-// type is "population" or "property"
+// type is "population" or "property" - if unspecified, returns both
 Grid.prototype.getWrappedCells = function(type) {
-  if (type !== "population" && type !== "property" && type != null)
-    throw new Error(
-      "Wrapper cell type must be population, property or nothing"
-    );
-
+  
   let cells = new Array(this.xSize);
   //console.log(this.xSize,this.ySize);
   for (let x = 0; x < this.xSize; x++) {
@@ -81,22 +81,22 @@ Grid.prototype.getWrappedCells = function(type) {
       //console.log(x,y);
       let current = this.at(x, y);
 
-      switch (type) {
-        case "population":
-          cells[x][y] = CellWrapper.population(current);
-          break;
-        case "property":
-          cells[x][y] = CellWrapper.property(current);
-          break;
-        case null:
-          cells[x][y] = CellWrapper.both(current);
-          break;
+      if (type === "population") {
+        cells[x][y] = CellWrapper.population(current);
+      } else if (type === "property") {
+        cells[x][y] = CellWrapper.property(current);
+      } else {
+        cells[x][y] = CellWrapper.both(current);
       }
     }
   }
   // console.log(cells);
   return cells;
 };
+
+Grid.prototype.getSelfWrapped = function(){
+  return GridWrapper(this);
+}
 
 // makes the cells
 const createCells = function() {

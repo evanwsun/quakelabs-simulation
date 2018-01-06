@@ -9,7 +9,7 @@ function Cell(x, y, grid, options = {}) {
 
   this.population = {};
   try {
-    this.population.originalValue = options.population.val || 0; 
+    this.population.originalValue = options.population.val || 0;
     this.population.growthPerTick = options.population.tickGrowth || 1; // multiplier
     this.population.dead = options.population.dead || 0;
 
@@ -60,17 +60,17 @@ Cell.prototype.changePopulation = function(newPopulation) {
   this.population.originalValue = newPopulation;
 };
 
-Cell.prototype.changePopulationGrowth = function(newGrowth){
+Cell.prototype.changePopulationGrowth = function(newGrowth) {
   this.population.growthPerTick = newGrowth;
-}
+};
 
 Cell.prototype.changePropertyOriginalValue = function(newValue) {
   this.property.originalValue = newValue;
 };
 
-Cell.prototype.tick = function(){
+Cell.prototype.tick = function() {
   this.population.originalValue *= this.population.growthPerTick; // grow! (or die...)
-}
+};
 
 // percent is percentage of full quake this cell will experience
 Cell.prototype.quake = function(
@@ -85,6 +85,10 @@ Cell.prototype.quake = function(
     baseDamage,
     exponentScaler
   ).call(this); // property damage
+
+  this.population.growthPerTick *=
+    this.population.originalValue /
+    (this.population.originalValue + this.population.dead); // adjust growth to population
 
   doPopulationDamage(
     magnitude - Math.log10(1 / percent), // magnitude is logarithmically scaled

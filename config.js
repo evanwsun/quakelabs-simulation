@@ -2,7 +2,7 @@
 // This config is not for secrets.
 // It's to set up the simulation how you would like to.
 // I haven't quite decided how to handle this vis-à-vis .gitignore
-const Grid = require("./grid.js");
+const Grid = require("./services/grid.js");
 const rnorm = require("randgen").rnorm;
 const Promise = require("bluebird");
 let exp = module.exports;
@@ -10,7 +10,7 @@ let exp = module.exports;
 exp.tick = {};
 
 exp.tick.realFrequency = 10; // seconds
-exp.tick.fakeFrequency = 0.0125; // days
+exp.tick.fakeFrequency = 1080; // seconds
 exp.tick.limit = 560;
 // this works out to 56 minutes representing 7 days
 
@@ -80,7 +80,7 @@ exp.quake.exponentScaler = 0.0677;
 exp.misc = {};
 
 exp.misc.serverValueRounding = 4; // round values exposed by API to x decimals. Set to false for no rounding.
-
+exp.misc.noRound = ['population.growthPerTick']; // don't round these because accuracy is needed
 exp.setup = function(grid) {
   return new Promise(resolve => {
     let rtn = grid || new Grid(exp.dimensions.x, exp.dimensions.y);

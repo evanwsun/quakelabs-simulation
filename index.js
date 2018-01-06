@@ -5,10 +5,10 @@ require("dotenv").load();
 const config = require("./config.js");
 const Promise = require("bluebird");
 
-const twitterService = require("./twitter.js");
-const Grid = require("./grid.js");
-const Cell = require("./cell.js");
-const server = require("./server.js");
+const twitterService = require("./services/twitter.js");
+const Grid = require("./services/grid.js");
+const Cell = require("./services/cell.js");
+const server = require("./services/server.js");
 
 //const setInterval = require("timers").setInterval;
 
