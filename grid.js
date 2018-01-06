@@ -1,6 +1,7 @@
 // @ts-check
+const Promise = require("bluebird");
 const Cell = require("./cell.js");
-
+const config = require("./config.js");
 
 // a grid represents the city - a combination of cells
 
@@ -9,16 +10,36 @@ function Grid(xSize, ySize) {
   this.ySize = ySize;
   // console.log(this.xSize,this.ySize);
 
- 
-  this._cells = createCells.call(this);  // call() ensures that it has the right "this"
+  this._cells = createCells.call(this); // call() ensures that it has the right "this"
   //console.log(this.cells);
 }
 
 // function to move grid simulation forward. Defaults to 1 tick forward but can do a different number if needed
 // probably won't be deterministic so _be_ careful.
-Grid.prototype.tick = (num = 1) => {};
+Grid.prototype.tick = (num = 1) => {
+  console.log(this._cells);
+  this._cells.forEach(element => {
+    element.tick();
+  });
+};
 
-
+Grid.prototype.quake = function(
+  where,
+  magnitude,
+  baseDamage = config.quake.baseDamage,
+  exponentScaler = config.quake.exponentScaler
+) {
+  Object.keys(where).forEach(rating => {
+    where[rating].foreach(location => {
+      this.at(location[0], location[1]).quake(
+        magnitude,
+        baseDamage,
+        exponentScaler,
+        rating
+      );
+    });
+  });
+};
 
 // you could directly access with Grid._cells but this has error protection
 Grid.prototype.at = function(x, y, direction = "none") {
@@ -29,7 +50,7 @@ Grid.prototype.at = function(x, y, direction = "none") {
   if (y < 0 || y > this.ySize - 1) {
     throw new Error("y out of bounds");
   }
-  
+
   let rtn = this._cells[x][y];
 
   if (rtn == null) {
@@ -39,7 +60,6 @@ Grid.prototype.at = function(x, y, direction = "none") {
 
   return direction === "none" ? rtn : rtn.direction;
 };
-
 
 // makes the cells
 const createCells = function() {

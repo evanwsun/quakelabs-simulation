@@ -1,20 +1,33 @@
 //@ts-check
 
+const Promise = require("bluebird");
 // the cells that composes the Grid
 function Cell(x, y, grid, options = {}) {
   this.x = x;
   this.y = y;
   this.grid = grid; // you are absolutely FORBIDDEN from altering this. http://jasonjl.me/blog/2014/10/15/javascript/
 
-  
-  this.poi = {}; // points of interest - like a hospital or prison!
+  this.population = {};
+  try {
+    this.population.originalValue = options.population.val || 0;
+    this.population.growthPerTick = options.population.tickGrowth || 1; // multiplier
+    this.population.dead = options.population.dead || 0;
 
-  this.population = options.population; // the people around - don't alter because issues might happen
+    this.population.resiliency = options.population.resilience;
+  } catch (err) {}
+
+  this.property = {};
+  try {
+    this.property.originalValue = options.property.val || 0;
+    this.property.destroyed = options.property.destroyed || 0;
+    this.property.poi = options.property.poi || {};
+    this.property.resiliency = options.property.resilience; // a 1-100 rating of how earthquake resistant the local infrastructure is. 0 means everything is destroyed
+  } catch (err) {}
 }
-
 
 // takes you where you need to go!
 Cell.prototype.navigate = function(where) {
+  where = where.toLowerCase(); // ez parse
   let options = {
     n: [0, 1],
     e: [1, 0],
@@ -27,7 +40,8 @@ Cell.prototype.navigate = function(where) {
     none: [0, 0]
   };
 
-  if (Object.keys(options).includes(where) === false) // TODO: add toLowerCase parsing
+  if (Object.keys(options).includes(where) === false)
+    // TODO: add toLowerCase parsing
     throw new Error("Invalid location passed to navigate funciton");
 
   let target = [this.x + options[where][0], this.y + options[where][1]];
@@ -43,7 +57,56 @@ Cell.prototype.navigate = function(where) {
 };
 
 Cell.prototype.changePopulation = function(newPopulation) {
-  this.population = newPopulation;
+  this.population.originalValue = newPopulation;
 };
 
+Cell.prototype.changePopulationGrowth = function(newGrowth){
+  this.population.growthPerTick = newGrowth;
+}
+
+Cell.prototype.changePropertyOriginalValue = function(newValue) {
+  this.property.originalValue = newValue;
+};
+
+Cell.prototype.tick = function(){
+  this.population.originalValue *= this.population.growthPerTick; // grow! (or die...)
+}
+
+// percent is percentage of full quake this cell will experience
+Cell.prototype.quake = function(
+  magnitude,
+  baseDamage,
+  exponentScaler,
+  percent = 100
+) {
+  // currently property optimized, not for loss of life
+  doPropertyDamage(
+    magnitude - Math.log10(1 / percent), // magnitude is logarithmically scaled
+    baseDamage,
+    exponentScaler
+  ).call(this); // property damage
+
+  doPopulationDamage(
+    magnitude - Math.log10(1 / percent), // magnitude is logarithmically scaled
+    baseDamage,
+    exponentScaler
+  ).call(this); // property damage
+};
+
+function doPropertyDamage(magnitude, baseDamage, exponentScaler) {
+  // be careful with the formula values here - they're important!
+  // personally I recommend baseDamage = 32.459 and exponentScaler = .0677
+  // those tend to lead to decent scaling. Experiment here: https://www.desmos.com/calculator/snctowakvt
+  let damageRating = Math.pow(10, magnitude) * this.property.resilience / 100;
+  let percentDamage = baseDamage * Math.pow(damageRating, exponentScaler);
+
+  this.property.destroyed = this.property.value * percentDamage / 100;
+}
+
+function doPopulationDamage(magnitude, baseDamage, exponentScaler) {
+  let damageRating = Math.pow(10, magnitude) * this.population.resilience / 100;
+  let percentDeath = baseDamage * Math.pow(damageRating, exponentScaler);
+
+  this.population.dead = this.population.value * percentDeath / 100;
+}
 module.exports = Cell;

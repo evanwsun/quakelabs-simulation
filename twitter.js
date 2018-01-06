@@ -1,4 +1,5 @@
 //@ts-check
+const Promise = require("bluebird");
 const Twitter = require('twitter');
 
 const client = new Twitter({

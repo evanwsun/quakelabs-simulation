@@ -1,25 +1,13 @@
 //@ts-check
 require("dotenv").load();
-const config = require('./config.js');
+const config = require("./config.js");
+const Promise = require("bluebird");
+
 const twitterService = require("./twitter.js");
-const Grid = require('./grid.js');
-const Cell = require('./cell.js');
+const Grid = require("./grid.js");
+const Cell = require("./cell.js");
 
-
-
-
-
-
-
-const grid = new Grid(7,4);
-config.distribution(grid);
-
-console.log(grid._cells[2][3]);
-
-
-
-
-
-
-
-
+const grid = config.setup().then(grid => {
+ // grid.tick();
+  console.log(grid.at(2, 3).navigate("N"));
+});
