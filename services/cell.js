@@ -68,7 +68,9 @@ Cell.prototype.changePropertyOriginalValue = function(newValue) {
   this.property.originalValue = newValue;
 };
 
-Cell.prototype.tick = function() {
+Cell.prototype.tick = function(growthPerTickAlterationValue) {
+  this.population.growthPerTick *=
+    growthPerTickAlterationValue * Math.pow(this.population.resiliency, 0.25);
   this.population.originalValue *= this.population.growthPerTick; // grow! (or die...)
 };
 

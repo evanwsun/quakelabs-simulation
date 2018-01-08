@@ -17,10 +17,10 @@ function Grid(xSize, ySize) {
   this._cells = createCells.call(this); // call() ensures that it has the right "this"
   //console.log(this.cells);
 
-  this.food;
-  this.water;
-  this.shelter;
-  this.wellness;
+  this.food = 50;
+  this.water = 50;
+  this.shelter = 50;
+  this.wellness = 50;
 }
 
 // function to move grid simulation forward. Defaults to 1 tick forward but can do a different number if needed
@@ -31,7 +31,9 @@ Grid.prototype.tick = function(num = 1) {
   this.fakeTime += config.tick.fakeFrequency;
   this._cells.forEach(row => {
     row.forEach(cell => {
-      cell.tick();
+      let alterationValue =
+        (this.food + this.water + this.shelter + this.wellness) / 4 / 100;
+      cell.tick(alterationValue);
     });
   });
 };
