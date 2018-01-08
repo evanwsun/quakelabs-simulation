@@ -1,6 +1,9 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const querying = require("./querying.js");
+const quakes = require("./quakes.js");
+
 app.use(cors());
 
 const port = 80;
@@ -13,7 +16,7 @@ const addGrid = (id, grid) => {
 app.get("/cells/population", (req, res) => {
   console.log(
     req.route.path +
-      " pinged with " +
+      " pinged with GET " +
       JSON.stringify(req.query) +
       " query string"
   );
@@ -30,7 +33,7 @@ app.get("/cells/population", (req, res) => {
 app.get("/cells/property", (req, res) => {
   console.log(
     req.route.path +
-      " pinged with " +
+      " pinged with GET " +
       JSON.stringify(req.query) +
       " query string"
   );
@@ -47,7 +50,7 @@ app.get("/cells/property", (req, res) => {
 app.get("/cells", (req, res) => {
   console.log(
     req.route.path +
-      " pinged with " +
+      " pinged with GET " +
       JSON.stringify(req.query) +
       " query string"
   );
@@ -64,7 +67,7 @@ app.get("/cells", (req, res) => {
 app.get("/grid", (req, res) => {
   console.log(
     req.route.path +
-      " pinged with " +
+      " pinged with GET " +
       JSON.stringify(req.query) +
       " query string"
   );
@@ -75,6 +78,28 @@ app.get("/grid", (req, res) => {
     res.status(200).send(grid.getSelfWrapped());
   } else {
     res.status(404).send("Grid does not exist");
+  }
+});
+
+app.post("/quake", (req, res) => {
+  console.log(
+    req.route.path +
+      " pinged with POST " +
+      JSON.stringify(req.query) +
+      " query string"
+  );
+
+  let quake = quakes[req.query.quakeId];
+  let grid = grids[req.query.id];
+
+  if (quake != null && grid != null) {
+    try {
+      grid.quake(quake.where, quake.magnitude);
+      res.status(200).send('Success!');
+    } catch (err) {
+      console.log(err);
+      res.status(500).send('Quake probably didn not occur');
+    }
   }
 });
 

@@ -100,7 +100,7 @@ Cell.prototype.quake = function(
 function doPropertyDamage(magnitude, baseDamage, exponentScaler) {
   // be careful with the formula values here - they're important!
   // personally I recommend baseDamage = 32.459 and exponentScaler = .0677
-  // those tend to lead to decent scaling. Experiment here: https://www.desmos.com/calculator/snctowakvt
+  // those tend to lead to decent scaling. Experiment here: https://www.desmos.com/calculator/yhpsge2l7r
   let damageRating = Math.pow(10, magnitude) * this.property.resilience / 100;
   let percentDamage = baseDamage * Math.pow(damageRating, exponentScaler);
 

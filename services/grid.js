@@ -2,8 +2,9 @@
 const Promise = require("bluebird");
 const Cell = require("./cell.js");
 const CellWrapper = require("./wrappers/cell.js");
-const GridWrapper = require("./wrappers/grid.js")
+const GridWrapper = require("./wrappers/grid.js");
 const config = require("../config.js");
+const querying = require("./querying.js");
 
 // a grid represents the city - a combination of cells
 
@@ -15,6 +16,11 @@ function Grid(xSize, ySize) {
   this.fakeTime = 0; // seconds
   this._cells = createCells.call(this); // call() ensures that it has the right "this"
   //console.log(this.cells);
+
+  this.food;
+  this.water;
+  this.shelter;
+  this.wellness;
 }
 
 // function to move grid simulation forward. Defaults to 1 tick forward but can do a different number if needed
@@ -36,13 +42,13 @@ Grid.prototype.quake = function(
   baseDamage = config.quake.baseDamage,
   exponentScaler = config.quake.exponentScaler
 ) {
-  Object.keys(where).forEach(rating => {
-    where[rating].foreach(location => {
+  Object.keys(where).forEach(percent => {
+    where[percent].foreach(location => {
       this.at(location[0], location[1]).quake(
         magnitude,
         baseDamage,
         exponentScaler,
-        rating
+        percent // percent of quake this locale will experience
       );
     });
   });
@@ -71,7 +77,6 @@ Grid.prototype.at = function(x, y, direction = "none") {
 // returns cells without grid reference
 // type is "population" or "property" - if unspecified, returns both
 Grid.prototype.getWrappedCells = function(type) {
-  
   let cells = new Array(this.xSize);
   //console.log(this.xSize,this.ySize);
   for (let x = 0; x < this.xSize; x++) {
@@ -94,9 +99,40 @@ Grid.prototype.getWrappedCells = function(type) {
   return cells;
 };
 
-Grid.prototype.getSelfWrapped = function(){
+Grid.prototype.getSelfWrapped = function() {
   return GridWrapper(this);
-}
+};
+
+// moving x percent of people from toMove to newLocale
+Grid.prototype.evacuate = function(toMoveQuery, newLocaleQuery, percent) {
+  let evacueeCells = querying.rectangular(this, toMoveQuery[0], toMoveQuery[1]);
+  let newLocaleCells = querying.rectangular(
+    this,
+    newLocaleQuery[0],
+    newLocaleQuery[1]
+  );
+
+  let totalToMove = 0;
+  evacueeCells.forEach(element => {
+    let toRemove = element.population.originalValue * percent / 100;
+    totalToMove += toRemove;
+    element.population.originalValue -= toRemove;
+  });
+
+  newLocaleCells.forEach(element => {
+    element.population.originalValue += totalToMove / newLocaleCells.length;
+  });
+};
+
+Grid.prototype.totalPopulation = function() {
+  let total = 0;
+  this._cells.forEach(row => {
+    row.forEach(cell => {
+      total += cell.population.originalValue;
+    });
+  });
+  return total;
+};
 
 // makes the cells
 const createCells = function() {
