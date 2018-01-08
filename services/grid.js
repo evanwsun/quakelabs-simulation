@@ -45,7 +45,7 @@ Grid.prototype.quake = function(
   exponentScaler = config.quake.exponentScaler
 ) {
   Object.keys(where).forEach(percent => {
-    where[percent].foreach(location => {
+    where[percent].forEach(location => {
       this.at(location[0], location[1]).quake(
         magnitude,
         baseDamage,

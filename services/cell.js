@@ -82,36 +82,32 @@ Cell.prototype.quake = function(
   percent = 100
 ) {
   // currently property optimized, not for loss of life
-  doPropertyDamage(
-    magnitude - Math.log10(1 / percent), // magnitude is logarithmically scaled
-    baseDamage,
-    exponentScaler
-  ).call(this); // property damage
-
+ /*
   this.population.growthPerTick *=
     this.population.originalValue /
     (this.population.originalValue + this.population.dead); // adjust growth to population
-
-  doPopulationDamage(
+*/
+  this.doPopulationDamage(
     magnitude - Math.log10(1 / percent), // magnitude is logarithmically scaled
     baseDamage,
     exponentScaler
-  ).call(this); // property damage
+  )// property damage
 };
 
 function doPropertyDamage(magnitude, baseDamage, exponentScaler) {
   // be careful with the formula values here - they're important!
   // personally I recommend baseDamage = 32.459 and exponentScaler = .0677
   // those tend to lead to decent scaling. Experiment here: https://www.desmos.com/calculator/yhpsge2l7r
-  let damageRating = Math.pow(10, magnitude) * this.property.resilience / 100;
+  let damageRating = Math.pow(10, magnitude) * this.property.resiliency / 100;
   let percentDamage = baseDamage * Math.pow(damageRating, exponentScaler);
 
   this.property.destroyed = this.property.value * percentDamage / 100;
   this.property.originalValue -= this.propert.destroyed;
 }
 
-function doPopulationDamage(magnitude, baseDamage, exponentScaler) {
-  let damageRating = Math.pow(10, magnitude) * this.population.resilience / 100;
+Cell.prototype.doPopulationDamage = function(magnitude, baseDamage, exponentScaler) {
+  //console.log(this);
+  let damageRating = Math.pow(10, magnitude) * this.population.resiliency / 100;
   let percentDeath = baseDamage * Math.pow(damageRating, exponentScaler);
 
   this.population.dead = this.population.value * percentDeath / 100;
